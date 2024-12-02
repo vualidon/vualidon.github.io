@@ -1,0 +1,28 @@
+/* Custom animations and additional styling */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+body {
+    animation: fadeIn 1s ease-in;
+}
+
+#about, #skills, #projects, #contact {
+    transition: transform 0.3s ease;
+}
+
+#about:hover, #skills:hover, #projects:hover, #contact:hover {
+    transform: scale(1.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 2.5rem;
+    }
+}
