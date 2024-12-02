@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             degree: 'B.S. in Computer Science',
             university: 'Ton Duc Thang University',
             location: 'Ho Chi Minh City, Vietnam',
-            period: '2020 - 2024 (Expected)',
+            period: '2020 - 2024',
             gpa: '8.47/10',
             highlights: [
                 'TDTU Scholarship recipient',
@@ -106,6 +106,98 @@ document.addEventListener('DOMContentLoaded', () => {
                 </ul>
             </div>
         `;
+    }
+
+    // Experience Section
+    const experienceSection = document.getElementById('experience');
+    if (experienceSection) {
+        const experienceData = [
+            {
+                title: 'Data Analyst / AI Engineer',
+                company: 'FPT Telecom',
+                location: 'Ho Chi Minh City, Vietnam',
+                period: 'Jun 2023 - Present',
+                description: [
+                    'Collect, process, and analyze data to derive insights',
+                    'Build models for image processing (Detection and OCR) in system maintenance',
+                    'Develop and implement AI solutions for telecom industry challenges (Log processing)',
+                    'Python developer with databases (MySQL, Mongodb, ElasticSearch) and network automation'
+                ],
+                skills: {
+                    technical: 'Python, PyTorch, Git, Pandas, Databases',
+                    soft: 'Teamwork, Time Management, Organizing'
+                }
+            },
+            {
+                title: 'Research Assistant',
+                company: 'TDTU NLP&KD LAB',
+                location: 'Ho Chi Minh City, Vietnam',
+                period: '2022 - Present',
+                description: [
+                    'Collecting and preprocessing data for NLP and LLM applications',
+                    'Building datasets for pretraining and fine-tuning LLMs',
+                    'Developing RAG systems and training LLMs for specific domains',
+                    'Contributing to research papers in the field of NLP (main author of 2 papers about aligned LLM for legal domain)'
+                ],
+                skills: {
+                    technical: 'Python, PyTorch, Huggingface, Git, Langchain, Databases, Data Mining, Evaluating model',
+                    soft: 'Teamwork, Time Management, Organizing'
+                }
+            }
+        ];
+
+        // Function to render experience cards
+        function renderExperience() {
+            const experienceList = document.getElementById('experience-list');
+            if (!experienceList) return;
+
+            experienceData.forEach(exp => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-50 rounded-lg p-6 shadow-sm';
+
+                const header = document.createElement('div');
+                header.className = 'mb-4';
+                
+                const title = document.createElement('h3');
+                title.className = 'text-xl font-semibold text-gray-900';
+                title.textContent = exp.title;
+                
+                const company = document.createElement('div');
+                company.className = 'text-lg text-gray-700';
+                company.textContent = exp.company;
+                
+                const locationPeriod = document.createElement('div');
+                locationPeriod.className = 'text-sm text-gray-600';
+                locationPeriod.textContent = `${exp.location} | ${exp.period}`;
+                
+                header.appendChild(title);
+                header.appendChild(company);
+                header.appendChild(locationPeriod);
+                
+                const description = document.createElement('ul');
+                description.className = 'list-disc list-inside space-y-2 mb-4 text-gray-700';
+                exp.description.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    description.appendChild(li);
+                });
+                
+                const skills = document.createElement('div');
+                skills.className = 'text-sm text-gray-600';
+                skills.innerHTML = `
+                    <div><strong>Technical Skills:</strong> ${exp.skills.technical}</div>
+                    <div><strong>Soft Skills:</strong> ${exp.skills.soft}</div>
+                `;
+                
+                card.appendChild(header);
+                card.appendChild(description);
+                card.appendChild(skills);
+                
+                experienceList.appendChild(card);
+            });
+        }
+
+        renderExperience();
     }
 
     // Dynamic Projects Section
@@ -217,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const titles = [
         'AI Engineer',
         'Machine Learning Engineer',
-        'Deep Learning Specialist'
+        'AI Researcher',
     ];
     const titleElement = document.getElementById('professional-title');
     let currentTitleIndex = 0;
