@@ -204,6 +204,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectsList = document.getElementById('projects-list');
     const projects = [
         {
+            name: 'DailyDigestAI',
+            description: 'LLM powered reading paper app for efficient research paper analysis. Features include paper chat functionality through LLM integration and automated generation of beautiful notes for Obsidian app.',
+            technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Firecrawl', 'Firebase', 'Gemini'],
+            organization: 'Personal Project',
+            date: 'Feb 2024',
+            link: 'https://dailydigestai.netlify.app/'
+        },
+        {
             name: 'Vietnamese Legal LLM',
             description: 'Building a Vietnamese legal large language model with enhanced reading comprehension. Continued-pretrain small LLMs (Sailor-1.8B, Qwen2-1.5B) on Vietnamese legal synthetic dataset.',
             technologies: ['Huggingface', 'LoRA', 'DPO', 'Unsloth', 'Git'],
@@ -246,7 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
         projectCard.className = 'bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300';
         projectCard.innerHTML = `
             <div class="flex justify-between items-start mb-2">
-                <h3 class="text-xl font-semibold text-gray-800">${project.name}</h3>
+                <h3 class="text-xl font-semibold text-gray-800">
+                    ${project.link ?
+                        `<a href="${project.link}" target="_blank" class="hover:text-blue-600 transition-colors">
+                            ${project.name}
+                            <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                        </a>` :
+                        project.name}
+                </h3>
                 <span class="text-sm text-gray-500">${project.date}</span>
             </div>
             <p class="text-gray-600 mb-3">${project.organization}</p>
