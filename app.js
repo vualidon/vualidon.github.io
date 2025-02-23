@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'LLM powered reading paper app for efficient research paper analysis. Features include paper chat functionality through LLM integration and automated generation of beautiful notes for Obsidian app.',
             technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Firecrawl', 'Firebase', 'Gemini'],
             organization: 'Personal Project',
-            date: 'Feb 2024',
+            date: 'Feb 2025',
             link: 'https://dailydigestai.netlify.app/'
         },
         {
