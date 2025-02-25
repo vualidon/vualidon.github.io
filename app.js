@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add skills for this category
         const skillsContainer = document.createElement('div');
         skillsContainer.className = 'flex flex-wrap gap-2 mb-4';
-
+        
         categorySkills.forEach(skill => {
             const skillSpan = document.createElement('span');
             skillSpan.className = `bg-${skill.color}-100 text-${skill.color}-800 px-3 py-1 rounded-full text-sm`;
@@ -157,23 +157,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const header = document.createElement('div');
                 header.className = 'mb-4';
-
+                
                 const title = document.createElement('h3');
                 title.className = 'text-xl font-semibold text-gray-900';
                 title.textContent = exp.title;
-
+                
                 const company = document.createElement('div');
                 company.className = 'text-lg text-gray-700';
                 company.textContent = exp.company;
-
+                
                 const locationPeriod = document.createElement('div');
                 locationPeriod.className = 'text-sm text-gray-600';
                 locationPeriod.textContent = `${exp.location} | ${exp.period}`;
-
+                
                 header.appendChild(title);
                 header.appendChild(company);
                 header.appendChild(locationPeriod);
-
+                
                 const description = document.createElement('ul');
                 description.className = 'list-disc list-inside space-y-2 mb-4 text-gray-700';
                 exp.description.forEach(item => {
@@ -181,18 +181,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     li.textContent = item;
                     description.appendChild(li);
                 });
-
+                
                 const skills = document.createElement('div');
                 skills.className = 'text-sm text-gray-600';
                 skills.innerHTML = `
                     <div><strong>Technical Skills:</strong> ${exp.skills.technical}</div>
                     <div><strong>Soft Skills:</strong> ${exp.skills.soft}</div>
                 `;
-
+                
                 card.appendChild(header);
                 card.appendChild(description);
                 card.appendChild(skills);
-
+                
                 experienceList.appendChild(card);
             });
         }
@@ -256,18 +256,18 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="flex justify-between items-start mb-2">
                 <h3 class="text-xl font-semibold text-gray-800">
                     ${project.link ?
-                `<a href="${project.link}" target="_blank" class="hover:text-blue-600 transition-colors">
+                        `<a href="${project.link}" target="_blank" class="hover:text-blue-600 transition-colors">
                             ${project.name}
                             <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                         </a>` :
-                project.name}
+                        project.name}
                 </h3>
                 <span class="text-sm text-gray-500">${project.date}</span>
             </div>
             <p class="text-gray-600 mb-3">${project.organization}</p>
             <p class="text-gray-700 mb-4">${project.description}</p>
             <div class="flex flex-wrap gap-2">
-                ${project.technologies.map(tech =>
+                ${project.technologies.map(tech => 
                     `<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${tech}</span>`
                 ).join('')}
             </div>
@@ -308,14 +308,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="space-y-12">
                 ${publications.map(pub => `
                     <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300">
-                        ${pub.link ?
-                `<a href="${pub.link}" target="_blank" class="hover:text-blue-600 transition-colors">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">${pub.title}</h3>
-                            <i class="fas fa-external-link-alt ml-1 text-sm"></i>
-                        </a>` :
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">${pub.title}</h3>}
 
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${pub.title}</h3>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                            ${pub.link ?
+                                `<a href="${pub.link}" target="_blank" class="hover:text-blue-600 transition-colors">
+                                    ${pub.title}
+                                    <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                                </a>` :
+                                pub.title}
+                        </h3>
                         <p class="text-gray-600 mb-2">${pub.authors}</p>
                         <p class="text-gray-700">
                             <span class="font-medium">${pub.conference}</span>
@@ -341,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function typeTitle() {
         const currentTitle = titles[currentTitleIndex];
-
+        
         if (isDeleting) {
             titleElement.textContent = currentTitle.substring(0, charIndex - 1);
             charIndex--;
