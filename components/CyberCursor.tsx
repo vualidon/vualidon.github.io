@@ -114,7 +114,7 @@ const CyberCursor = () => {
             height: 32,
             width: 32,
             backgroundColor: 'rgba(0, 240, 255, 0)',
-            mixBlendMode: 'normal',
+            mixBlendMode: 'normal' as const,
             border: '2px solid rgba(0, 240, 255, 0.5)',
         },
         hover: {
@@ -123,7 +123,7 @@ const CyberCursor = () => {
             height: 48,
             width: 48,
             backgroundColor: 'rgba(0, 240, 255, 0.1)',
-            mixBlendMode: 'screen',
+            mixBlendMode: 'screen' as const,
             border: '2px solid rgba(0, 240, 255, 0.8)',
         },
         click: {
@@ -132,7 +132,7 @@ const CyberCursor = () => {
             height: 32,
             width: 32,
             backgroundColor: 'rgba(255, 0, 255, 0.2)',
-            mixBlendMode: 'screen',
+            mixBlendMode: 'screen' as const,
             border: '2px solid rgba(255, 0, 255, 0.8)',
         },
     };

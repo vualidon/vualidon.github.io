@@ -9,7 +9,8 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@react-three/drei": "^9.96.1",
+        "@react-three/drei": "^9.88.0",
+        "@react-three/fiber": "^8.15.0",
         "@supabase/supabase-js": "^2.49.1",
         "autoprefixer": "^10.4.17",
         "framer-motion": "^11.0.3",
@@ -25,6 +26,7 @@
         "@types/node": "^20.11.10",
         "@types/react": "^18.2.48",
         "@types/react-dom": "^18.2.18",
+        "@types/three": "^0.174.0",
         "eslint": "^8.56.0",
         "eslint-config-next": "^14.1.0",
         "typescript": "^5.3.3"

@@ -297,7 +297,7 @@ const createExplosion = (position: THREE.Vector3, color: THREE.Color) => {
 };
 
 // Create a trail particle for debris
-const createTrailParticle = (position, color) => {
+const createTrailParticle = (position: THREE.Vector3, color: THREE.Color | THREE.ColorRepresentation) => {
     const geometry = new THREE.SphereGeometry(0.01 + Math.random() * 0.01, 4, 4);
     const material = new THREE.MeshBasicMaterial({
         color: color,
@@ -718,6 +718,55 @@ const HeroSection = () => {
             }
         };
 
+        // Handle touch events for mobile
+        const handleTouch = (event: TouchEvent) => {
+            if (event.touches.length === 0 && event.changedTouches.length > 0) {
+                // Use the first touch point
+                const touch = event.changedTouches[0];
+                const rect = canvasRef.current!.getBoundingClientRect();
+                mouseRef.current.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                mouseRef.current.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+
+                // Update the raycaster
+                raycasterRef.current.setFromCamera(mouseRef.current, camera);
+
+                // Check for intersections with ships
+                const shipIntersects = raycasterRef.current.intersectObjects(
+                    shipsRef.current.flatMap(ship => ship.children)
+                );
+
+                // Process intersections the same way as in handleClick
+                if (shipIntersects.length > 0) {
+                    const intersectedObject = shipIntersects[0].object;
+                    const ship = intersectedObject.parent;
+
+                    if (ship && !ship.userData.exploding) {
+                        // Create explosion at ship position
+                        const explosion = createExplosion(ship.position.clone(), new THREE.Color(0x00ffff));
+                        scene.add(explosion);
+                        explosionsRef.current.push(explosion);
+
+                        // Mark ship as exploding and remove it
+                        ship.userData.exploding = true;
+                        ship.visible = false;
+
+                        // Schedule ship respawn
+                        setTimeout(() => {
+                            if (ship.parent) {
+                                ship.position.set(
+                                    (Math.random() - 0.5) * 10,
+                                    (Math.random() - 0.5) * 5 + 2,
+                                    (Math.random() - 0.5) * 5 - 5
+                                );
+                                ship.userData.exploding = false;
+                                ship.visible = true;
+                            }
+                        }, 3000);
+                    }
+                }
+            }
+        };
+
         // Initial creation
         createRandomShips();
         createRandomDrones();
@@ -742,7 +791,7 @@ const HeroSection = () => {
 
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('click', handleClick);
-        window.addEventListener('touchend', handleClick); // For mobile
+        window.addEventListener('touchend', handleTouch); // For mobile
 
         // Handle window resize
         const handleResize = () => {
@@ -815,7 +864,11 @@ const HeroSection = () => {
                         const scale = child.userData.initialScale +
                             (child.userData.maxScale - child.userData.initialScale) * flashPhase;
                         child.scale.set(scale, scale, scale);
-                        child.material.opacity = Math.max(0, 1 - flashPhase * 2);
+
+                        // Check if child is a Mesh before accessing material
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, 1 - flashPhase * 2);
+                        }
                     }
                     else if (child.userData.isEMP) {
                         // EMP wave expands very rapidly outward
@@ -823,43 +876,49 @@ const HeroSection = () => {
                         child.scale.set(scale, scale, scale);
 
                         // EMP wave fades quickly
-                        child.material.opacity = Math.max(0, 0.9 - easeOut * 1.5);
+                        // Check if child is a Mesh before accessing material
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, 0.9 - easeOut * 1.5);
 
-                        // Pulsating effect
-                        if (age < 500) {
-                            const pulse = Math.sin(age * 0.05) * 0.2 + 0.8;
-                            child.material.opacity *= pulse;
+                            // Pulsating effect
+                            if (age < 500) {
+                                const pulse = Math.sin(age * 0.05) * 0.2 + 0.8;
+                                child.material.opacity *= pulse;
+                            }
                         }
                     }
                     else if (child.userData.isShockwave) {
                         // Shockwave expands rapidly outward
                         const scale = child.userData.initialScale + easeOut * 15 * child.userData.expansionRate;
                         child.scale.set(scale, scale, scale);
-                        child.material.opacity = Math.max(0, 0.9 - easeOut * 1.2);
+
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, 0.9 - easeOut * 1.2);
+                        }
                     }
                     else if (child.userData.isFireball) {
                         // Fireball expands then contracts
                         let scale;
                         if (lifePercent < 0.3) {
-                            // Expand phase
                             scale = child.userData.initialScale +
                                 (child.userData.maxScale - child.userData.initialScale) * (lifePercent / 0.3);
                         } else {
-                            // Contract phase
                             scale = child.userData.maxScale * (1 - ((lifePercent - 0.3) / 0.7));
                         }
                         child.scale.set(scale, scale, scale);
 
                         // Fade out
-                        child.material.opacity = Math.max(0, 1 - easeIn * 1.2);
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, 1 - easeIn * 1.2);
 
-                        // Color transition from bright yellow to red to dark red
-                        if (lifePercent < 0.2) {
-                            child.material.color.setHex(0xffcc00);
-                        } else if (lifePercent < 0.5) {
-                            child.material.color.lerp(new THREE.Color(0xff3300), (lifePercent - 0.2) / 0.3);
-                        } else {
-                            child.material.color.lerp(new THREE.Color(0x661100), (lifePercent - 0.5) / 0.5);
+                            // Color transition from bright yellow to red to dark red
+                            if (lifePercent < 0.2) {
+                                child.material.color.setHex(0xffcc00);
+                            } else if (lifePercent < 0.5) {
+                                child.material.color.lerp(new THREE.Color(0xff3300), (lifePercent - 0.2) / 0.3);
+                            } else {
+                                child.material.color.lerp(new THREE.Color(0x661100), (lifePercent - 0.5) / 0.5);
+                            }
                         }
                     }
                     else if (child.userData.isSecondaryExplosion) {
@@ -883,15 +942,18 @@ const HeroSection = () => {
                             }
 
                             child.scale.set(scale, scale, scale);
-                            child.material.opacity = Math.max(0, 1 - secEaseOut * 1.2);
 
-                            // Color transition
-                            if (secLifePercent < 0.3) {
-                                child.material.color.setHex(0xffcc00);
-                            } else if (secLifePercent < 0.6) {
-                                child.material.color.lerp(new THREE.Color(0xff3300), (secLifePercent - 0.3) / 0.3);
-                            } else {
-                                child.material.color.lerp(new THREE.Color(0x661100), (secLifePercent - 0.6) / 0.4);
+                            if (child instanceof THREE.Mesh && child.material) {
+                                child.material.opacity = Math.max(0, 1 - secEaseOut * 1.2);
+
+                                // Color transition
+                                if (secLifePercent < 0.3) {
+                                    child.material.color.setHex(0xffcc00);
+                                } else if (secLifePercent < 0.6) {
+                                    child.material.color.lerp(new THREE.Color(0xff3300), (secLifePercent - 0.3) / 0.3);
+                                } else {
+                                    child.material.color.lerp(new THREE.Color(0x661100), (secLifePercent - 0.6) / 0.4);
+                                }
                             }
                         }
                     }
@@ -934,7 +996,9 @@ const HeroSection = () => {
                         }
 
                         // Fade out gradually
-                        child.material.opacity = Math.max(0, 1 - easeIn * 1.2);
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, 1 - easeIn * 1.2);
+                        }
                     }
                     else if (child.userData.isSmoke) {
                         // Smoke expands and rises
@@ -942,23 +1006,11 @@ const HeroSection = () => {
                             // Apply drag (air resistance)
                             child.userData.velocity.multiplyScalar(child.userData.drag);
 
-                            // Add slight upward drift
-                            child.userData.velocity.y += 0.0005;
-
-                            // Add random turbulence for more realistic smoke movement
-                            child.userData.velocity.add(child.userData.turbulence);
-
-                            // Occasionally change turbulence direction
-                            if (Math.random() < 0.05) {
-                                child.userData.turbulence.set(
-                                    (Math.random() - 0.5) * 0.001,
-                                    (Math.random() - 0.5) * 0.001,
-                                    (Math.random() - 0.5) * 0.001
-                                );
-                            }
-
-                            // Update position
+                            // Apply velocity
                             child.position.add(child.userData.velocity);
+
+                            // Apply gravity (reduced for smoke)
+                            child.userData.velocity.y += child.userData.gravity;
                         }
 
                         // Expand smoke
@@ -966,26 +1018,29 @@ const HeroSection = () => {
                         child.scale.set(scale, scale, scale);
 
                         // Fade out gradually, but stay visible longer than debris
-                        child.material.opacity = Math.max(0, child.userData.opacity * (1 - easeIn));
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, child.userData.opacity * (1 - easeIn));
+                        }
                     }
                     else if (!child.userData.isHitbox) {
                         // Handle any other particles
                         if (child.userData.velocity) {
+                            // Apply velocity
                             child.position.add(child.userData.velocity);
+
+                            // Apply gravity
+                            child.userData.velocity.y += child.userData.gravity;
                         }
 
-                        if (child.userData.rotationSpeed) {
-                            child.rotation.x += child.userData.rotationSpeed.x;
-                            child.rotation.y += child.userData.rotationSpeed.y;
-                            child.rotation.z += child.userData.rotationSpeed.z;
+                        // Fade out
+                        if (child instanceof THREE.Mesh && child.material) {
+                            child.material.opacity = Math.max(0, 1 - easeOut);
                         }
-
-                        child.material.opacity = Math.max(0, 1 - easeOut);
                     }
                 });
 
                 // Animate trail particles
-                explosion.userData.trailParticles = explosion.userData.trailParticles.filter(trail => {
+                explosion.userData.trailParticles = explosion.userData.trailParticles.filter((trail: THREE.Object3D) => {
                     const trailAge = now - trail.userData.created;
                     const trailLifePercent = Math.min(trailAge / trail.userData.duration, 1);
 
@@ -994,13 +1049,29 @@ const HeroSection = () => {
                     trail.scale.set(scale, scale, scale);
 
                     // Fade out
-                    trail.material.opacity = Math.max(0, 1 - trailLifePercent);
+                    if (trail instanceof THREE.Mesh && trail.material) {
+                        // Check if it's a single material with opacity property
+                        const material = Array.isArray(trail.material) ? trail.material[0] : trail.material;
+                        if (material && 'opacity' in material) {
+                            material.opacity = Math.max(0, 1 - trailLifePercent);
+                        }
+                    }
 
                     // Remove if complete
                     if (trailLifePercent >= 1) {
                         scene.remove(trail);
-                        if (trail.geometry) trail.geometry.dispose();
-                        if (trail.material) trail.material.dispose();
+                        if (trail instanceof THREE.Mesh) {
+                            if (trail.geometry) {
+                                trail.geometry.dispose();
+                            }
+                            if (trail.material) {
+                                if (Array.isArray(trail.material)) {
+                                    trail.material.forEach(mat => mat.dispose());
+                                } else {
+                                    trail.material.dispose();
+                                }
+                            }
+                        }
                         return false;
                     }
 
@@ -1013,15 +1084,35 @@ const HeroSection = () => {
 
                     // Dispose of all geometries and materials
                     explosion.children.forEach(child => {
-                        if (child.geometry) child.geometry.dispose();
-                        if (child.material) child.material.dispose();
+                        if (child instanceof THREE.Mesh) {
+                            if (child.geometry) {
+                                child.geometry.dispose();
+                            }
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach(mat => mat.dispose());
+                                } else {
+                                    child.material.dispose();
+                                }
+                            }
+                        }
                     });
 
                     // Clean up any remaining trail particles
-                    explosion.userData.trailParticles.forEach(trail => {
+                    explosion.userData.trailParticles.forEach((trail: THREE.Object3D) => {
                         scene.remove(trail);
-                        if (trail.geometry) trail.geometry.dispose();
-                        if (trail.material) trail.material.dispose();
+                        if (trail instanceof THREE.Mesh) {
+                            if (trail.geometry) {
+                                trail.geometry.dispose();
+                            }
+                            if (trail.material) {
+                                if (Array.isArray(trail.material)) {
+                                    trail.material.forEach(mat => mat.dispose());
+                                } else {
+                                    trail.material.dispose();
+                                }
+                            }
+                        }
                     });
                 }
             });
@@ -1046,7 +1137,7 @@ const HeroSection = () => {
 
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('click', handleClick);
-            window.removeEventListener('touchend', handleClick);
+            window.removeEventListener('touchend', handleTouch);
             window.removeEventListener('resize', handleResize);
 
             clearInterval(shipInterval);
@@ -1059,8 +1150,18 @@ const HeroSection = () => {
             // Dispose all explosions
             explosionsRef.current.forEach(explosion => {
                 explosion.children.forEach(child => {
-                    if (child.geometry) child.geometry.dispose();
-                    if (child.material) child.material.dispose();
+                    if (child instanceof THREE.Mesh) {
+                        if (child.geometry) {
+                            child.geometry.dispose();
+                        }
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(mat => mat.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    }
                 });
             });
 
