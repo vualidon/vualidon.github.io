@@ -112,18 +112,18 @@ const AboutSection = () => {
     };
 
     return (
-        <section id="about" className="py-16 md:py-20 relative">
+        <section id="about" className="py-16 md:py-20 relative w-full">
             {/* Decorative elements */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-neon-blue/10 rounded-full blur-3xl -z-10"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-neon-pink/10 rounded-full blur-3xl -z-10"></div>
 
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 w-full">
                 <motion.div
                     ref={ref}
                     variants={containerVariants}
                     initial="hidden"
                     animate={isInView ? "visible" : "hidden"}
-                    className="max-w-4xl mx-auto"
+                    className="max-w-4xl mx-auto w-full"
                 >
                     <motion.div variants={itemVariants} className="text-center mb-12 md:mb-16">
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-cyber font-bold mb-4">
@@ -134,7 +134,7 @@ const AboutSection = () => {
                         <div className="w-24 h-1 bg-gradient-to-r from-neon-blue to-neon-pink mx-auto"></div>
                     </motion.div>
 
-                    <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center mb-16">
                         <motion.div variants={itemVariants} className="order-2 md:order-1">
                             <div className="relative mx-auto max-w-xs md:max-w-none">
                                 <div className="aspect-square rounded-lg overflow-hidden neon-border">
@@ -164,16 +164,16 @@ const AboutSection = () => {
                     </div>
 
                     {/* Experience Section */}
-                    <motion.div variants={itemVariants} className="mb-16">
+                    <motion.div variants={itemVariants} className="mb-16 w-full">
                         <h3 className="text-2xl font-cyber mb-8 text-center">
                             <span className="text-gradient">EXPERIENCE</span>
                         </h3>
 
-                        <div className="space-y-8">
+                        <div className="space-y-8 w-full">
                             {experienceData.map((experience, index) => (
                                 <div
                                     key={index}
-                                    className="bg-cyber-black/50 backdrop-blur-sm border border-neon-pink/30 rounded-lg p-6 relative overflow-hidden"
+                                    className="bg-cyber-black/50 backdrop-blur-sm border border-neon-pink/30 rounded-lg p-6 relative overflow-hidden w-full"
                                 >
                                     {/* Timeline connector */}
                                     {index < experienceData.length - 1 && (
@@ -191,8 +191,8 @@ const AboutSection = () => {
                                         </svg>
                                     </div>
 
-                                    <div className="flex flex-col md:flex-row gap-6">
-                                        <div className="md:w-1/3">
+                                    <div className="flex flex-col md:flex-row gap-6 w-full">
+                                        <div className="w-full md:w-1/3">
                                             <div className="text-neon-pink font-cyber text-lg mb-1">{experience.title}</div>
                                             <div className="text-white font-bold mb-2">{experience.company}</div>
                                             <div className="text-gray-400 text-sm mb-1">{experience.location}</div>
@@ -209,7 +209,7 @@ const AboutSection = () => {
                                             </div>
                                         </div>
 
-                                        <div className="md:w-2/3 md:border-l md:border-neon-pink/30 md:pl-6">
+                                        <div className="w-full md:w-2/3 md:border-l md:border-neon-pink/30 md:pl-6 mt-4 md:mt-0">
                                             <div className="text-white font-cyber mb-3">RESPONSIBILITIES</div>
                                             <ul className="space-y-3">
                                                 {experience.description.map((item, idx) => (
@@ -227,12 +227,12 @@ const AboutSection = () => {
                     </motion.div>
 
                     {/* Education Section */}
-                    <motion.div variants={itemVariants} className="mb-16">
+                    <motion.div variants={itemVariants} className="mb-16 w-full">
                         <h3 className="text-2xl font-cyber mb-8 text-center">
                             <span className="text-gradient">EDUCATION</span>
                         </h3>
 
-                        <div className="bg-cyber-black/50 backdrop-blur-sm border border-neon-blue/30 rounded-lg p-6 relative overflow-hidden">
+                        <div className="bg-cyber-black/50 backdrop-blur-sm border border-neon-blue/30 rounded-lg p-6 relative overflow-hidden w-full">
                             {/* Decorative circuit lines */}
                             <div className="absolute top-0 right-0 w-32 h-32 opacity-20">
                                 <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -247,8 +247,8 @@ const AboutSection = () => {
                                 </svg>
                             </div>
 
-                            <div className="flex flex-col md:flex-row gap-6">
-                                <div className="md:w-1/3">
+                            <div className="flex flex-col md:flex-row gap-6 w-full">
+                                <div className="w-full md:w-1/3">
                                     <div className="text-neon-blue font-cyber text-lg mb-1">{education.degree}</div>
                                     <div className="text-white font-bold mb-2">{education.university}</div>
                                     <div className="text-gray-400 text-sm mb-1">{education.location}</div>
@@ -258,7 +258,7 @@ const AboutSection = () => {
                                     </div>
                                 </div>
 
-                                <div className="md:w-2/3 md:border-l md:border-neon-blue/30 md:pl-6">
+                                <div className="w-full md:w-2/3 md:border-l md:border-neon-blue/30 md:pl-6 mt-4 md:mt-0">
                                     <div className="text-white font-cyber mb-3">HIGHLIGHTS</div>
                                     <ul className="space-y-2">
                                         {education.highlights.map((highlight, index) => (
@@ -274,7 +274,7 @@ const AboutSection = () => {
                     </motion.div>
 
                     {/* Skills Section */}
-                    <motion.div variants={itemVariants} className="mb-8">
+                    <motion.div variants={itemVariants} className="mb-8 w-full">
                         <h3 className="text-2xl font-cyber mb-8 text-center">
                             <span className="text-gradient">TECHNICAL SKILLS</span>
                         </h3>
@@ -286,8 +286,8 @@ const AboutSection = () => {
                                     key={category}
                                     onClick={() => setActiveCategory(category)}
                                     className={`px-4 py-2 rounded-md font-cyber text-sm transition-colors duration-300 ${activeCategory === category
-                                            ? 'bg-neon-blue text-black'
-                                            : 'bg-cyber-gray/30 text-gray-300 hover:bg-cyber-gray/50'
+                                        ? 'bg-neon-blue text-black'
+                                        : 'bg-cyber-gray/30 text-gray-300 hover:bg-cyber-gray/50'
                                         }`}
                                 >
                                     {category}
