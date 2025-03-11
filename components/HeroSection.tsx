@@ -1184,12 +1184,12 @@ const HeroSection = () => {
                 title="Click on spaceships or drones to destroy them!"
             />
 
-            <div className="relative z-10 text-center w-full max-w-4xl mx-auto">
+            <div className="relative z-10 text-center w-full max-w-4xl mx-auto flex items-center justify-center min-h-[80vh]">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="mb-12 md:mb-20" // Reduced margin on mobile
+                    className="w-full"
                 >
                     <h1 className="text-4xl sm:text-5xl md:text-7xl font-cyber font-bold mb-4 md:mb-6">
                         <span className="block mb-2">LE VO QUYET THANG</span>
@@ -1207,7 +1207,7 @@ const HeroSection = () => {
                         Welcome to my portfolio! I'm Le Vo Quyet Thang, an AI Engineer and Researcher with expertise in NLP.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8 sm:mb-0">
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
                         <motion.button
                             onClick={(e) => scrollToSection(e as any, 'projects')}
                             className="px-6 sm:px-8 py-3 bg-transparent border-2 border-neon-blue text-neon-blue font-cyber rounded-md hover:bg-neon-blue/20 transition-colors duration-300 text-sm sm:text-base"
@@ -1230,7 +1230,7 @@ const HeroSection = () => {
 
                 {/* Interactive hint that appears and then disappears */}
                 <motion.div
-                    className="absolute top-[170px] left-1/2 transform -translate-x-1/2 text-sm md:text-base text-center z-10"
+                    className="absolute top-[calc(50%-200px)] left-1/2 transform -translate-x-1/2 text-sm md:text-base text-center z-10"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: [0, 1, 1, 0] }}
                     transition={{
@@ -1263,32 +1263,31 @@ const HeroSection = () => {
                         </span>
                     </motion.div>
                 </motion.div>
-
-                {/* Scroll down arrow with improved positioning */}
-                <motion.div
-                    className="absolute left-1/2 transform -translate-x-1/2"
-                    style={{ bottom: 'clamp(20px, 5%, 40px)' }} // Responsive bottom positioning
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1, y: [0, 10, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
-                >
-                    <button
-                        onClick={(e) => scrollToSection(e as any, 'about')}
-                        className="block p-2 rounded-full hover:bg-cyber-gray/20 transition-colors duration-300 bg-transparent border-none cursor-pointer"
-                        aria-label="Scroll to About section"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-8 w-8 text-neon-blue"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                        </svg>
-                    </button>
-                </motion.div>
             </div>
+
+            {/* Scroll down arrow with fixed positioning */}
+            <motion.div
+                className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, y: [0, 10, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
+            >
+                <button
+                    onClick={(e) => scrollToSection(e as any, 'about')}
+                    className="flex items-center justify-center p-2 rounded-full bg-cyber-black/50 backdrop-blur-sm border border-neon-blue/30 hover:bg-cyber-gray/50 transition-colors duration-300 cursor-pointer"
+                    aria-label="Scroll to About section"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 text-neon-blue"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                </button>
+            </motion.div>
         </section>
     );
 };
