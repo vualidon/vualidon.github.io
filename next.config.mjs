@@ -6,8 +6,9 @@ const nextConfig = {
         unoptimized: true,
     },
     // For GitHub Pages deployment
-    basePath: process.env.NODE_ENV === 'production' ? '/vualidon.github.io' : '',
-    assetPrefix: process.env.NODE_ENV === 'production' ? '/vualidon.github.io/' : '',
+    // For user/organization site (username.github.io), basePath should be empty
+    basePath: '',
+    assetPrefix: '',
     trailingSlash: true,
     // Transpile Three.js modules
     transpilePackages: ['three'],
