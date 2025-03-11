@@ -5,7 +5,7 @@ import { motion, useInView } from 'framer-motion';
 
 const AboutSection = () => {
     const ref = useRef<HTMLDivElement>(null);
-    const isInView = useInView(ref, { once: true, amount: 0.3 });
+    const isInView = useInView(ref, { once: true, amount: 0.1 });
     const [activeCategory, setActiveCategory] = useState('Programming');
 
     const containerVariants = {
@@ -112,7 +112,7 @@ const AboutSection = () => {
     };
 
     return (
-        <section id="about" className="py-16 md:py-20 relative w-full">
+        <section id="about" className="py-16 md:py-20 relative w-full block">
             {/* Decorative elements */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-neon-blue/10 rounded-full blur-3xl -z-10"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-neon-pink/10 rounded-full blur-3xl -z-10"></div>

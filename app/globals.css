@@ -30,6 +30,22 @@ body {
     overflow-x: hidden;
 }
 
+/* Ensure sections are visible on all devices */
+section {
+    display: block !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Specific rule for the about section */
+#about {
+    display: block !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 .noise-overlay {
     position: fixed;
     top: 0;

@@ -75,7 +75,7 @@ export default function Home() {
     }
 
     return (
-        <main ref={mainRef} className="relative min-h-screen">
+        <main ref={mainRef} className="relative min-h-screen w-full">
             {/* Only render CyberCursor if not on a touch device */}
             {typeof window !== 'undefined' && !('ontouchstart' in window) && <CyberCursor />}
 
@@ -87,7 +87,7 @@ export default function Home() {
 
             <Navbar />
 
-            <div className="container mx-auto px-4 relative z-10">
+            <div className="container mx-auto px-4 relative z-10 w-full">
                 {/* Conditionally render HeroSection based on WebGL support */}
                 {isThreeJsReady ? (
                     <HeroSection />
@@ -105,7 +105,12 @@ export default function Home() {
                         </div>
                     </div>
                 )}
-                <AboutSection />
+
+                {/* About Section - explicitly set display block */}
+                <div className="block w-full">
+                    <AboutSection />
+                </div>
+
                 <ProjectsSection />
                 <PublicationsSection />
                 <ContactSection />
