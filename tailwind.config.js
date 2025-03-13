@@ -35,7 +35,53 @@ module.exports = {
                     '100%': { textShadow: '0 0 10px #00f0ff, 0 0 20px #00f0ff, 0 0 30px #00f0ff' },
                 },
             },
+            typography: {
+                DEFAULT: {
+                    css: {
+                        maxWidth: '100%',
+                        color: '#fff',
+                        h1: {
+                            color: '#00f0ff',
+                        },
+                        h2: {
+                            color: '#00f0ff',
+                        },
+                        h3: {
+                            color: '#00f0ff',
+                        },
+                        strong: {
+                            color: '#fff',
+                        },
+                        a: {
+                            color: '#b026ff',
+                            '&:hover': {
+                                color: '#00f0ff',
+                            },
+                        },
+                        code: {
+                            color: '#f7f01d',
+                            backgroundColor: '#121212',
+                            padding: '0.25rem',
+                            borderRadius: '0.25rem',
+                        },
+                        pre: {
+                            backgroundColor: '#121212',
+                            color: '#fff',
+                            borderRadius: '0.5rem',
+                            border: '1px solid rgba(0, 240, 255, 0.2)',
+                        },
+                        blockquote: {
+                            borderLeftColor: '#00f0ff',
+                            color: '#fff',
+                            backgroundColor: 'rgba(0, 240, 255, 0.05)',
+                            borderRadius: '0.25rem',
+                        },
+                    },
+                },
+            },
         },
     },
-    plugins: [],
+    plugins: [
+        require('@tailwindcss/typography'),
+    ],
 }; 

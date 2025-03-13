@@ -2,10 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const pathname = usePathname();
+    const isBlogPage = pathname?.includes('/blog');
 
     useEffect(() => {
         const handleScroll = () => {
@@ -19,6 +23,13 @@ const Navbar = () => {
     // Smooth scroll function that doesn't add hash to URL
     const scrollToSection = (e: React.MouseEvent<HTMLButtonElement>, targetId: string) => {
         e.preventDefault();
+
+        // If we're on the blog page, navigate to the home page first
+        if (isBlogPage) {
+            window.location.href = '/#' + targetId;
+            return;
+        }
+
         const targetSection = document.getElementById(targetId);
 
         if (targetSection) {
@@ -77,9 +88,11 @@ const Navbar = () => {
                     className="text-xl sm:text-2xl font-cyber font-bold text-neon-blue"
                     variants={linkVariants}
                 >
-                    <span className="text-white">&lt;</span>
-                    <span className="text-gradient">DEV</span>
-                    <span className="text-white">/&gt;</span>
+                    <Link href="/">
+                        <span className="text-white">&lt;</span>
+                        <span className="text-gradient">DEV</span>
+                        <span className="text-white">/&gt;</span>
+                    </Link>
                 </motion.div>
 
                 {/* Mobile menu button */}
@@ -117,6 +130,11 @@ const Navbar = () => {
                             </button>
                         </motion.li>
                     ))}
+                    <motion.li variants={linkVariants}>
+                        <Link href="/blog" className="font-cyber text-sm tracking-wider hover:text-neon-blue transition-colors duration-300">
+                            BLOG
+                        </Link>
+                    </motion.li>
                 </motion.ul>
             </div>
 
@@ -139,6 +157,15 @@ const Navbar = () => {
                                 </button>
                             </li>
                         ))}
+                        <li className="border-b border-neon-blue/10 pb-3">
+                            <Link
+                                href="/blog"
+                                className="block w-full text-left font-cyber text-base tracking-wider hover:text-neon-blue transition-colors duration-300 py-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                BLOG
+                            </Link>
+                        </li>
                     </ul>
                 </motion.div>
             )}
