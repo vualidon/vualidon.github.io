@@ -183,8 +183,13 @@ export default function BlogAdmin() {
             setIsEditing(false);
             fetchBlogPosts();
 
-            // Force a hard refresh to the blog page to see the new/updated post
-            window.location.href = '/blog';
+            // For new posts, redirect directly to the post with a special query parameter
+            if (!currentPost.id) {
+                window.location.href = `/blog/${postData.slug}?new=true`;
+            } else {
+                // For updates, go to the blog listing
+                window.location.href = '/blog';
+            }
         } catch (error) {
             console.error('Error saving blog post:', error);
             alert('Failed to save blog post. Please try again.');
@@ -207,9 +212,11 @@ export default function BlogAdmin() {
                     .eq('id', id);
 
                 if (error) throw error;
+
+                // Refresh the posts list
                 fetchBlogPosts();
 
-                // Force a hard refresh of the page to clear any cached data
+                // Redirect to the blog page
                 window.location.href = '/blog';
             } catch (error) {
                 console.error('Error deleting post:', error);
