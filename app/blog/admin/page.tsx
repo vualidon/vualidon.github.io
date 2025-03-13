@@ -205,6 +205,9 @@ export default function BlogAdmin() {
 
                 if (error) throw error;
                 fetchBlogPosts();
+
+                // Force a hard refresh of the page to clear any cached data
+                window.location.href = '/blog';
             } catch (error) {
                 console.error('Error deleting post:', error);
                 alert('Failed to delete post. Please try again.');
