@@ -182,6 +182,9 @@ export default function BlogAdmin() {
             });
             setIsEditing(false);
             fetchBlogPosts();
+
+            // Force a hard refresh to the blog page to see the new/updated post
+            window.location.href = '/blog';
         } catch (error) {
             console.error('Error saving blog post:', error);
             alert('Failed to save blog post. Please try again.');

@@ -6,7 +6,7 @@ import Footer from '../../components/Footer';
 
 // Remove the dynamic directive and set a reasonable revalidation time
 // export const dynamic = 'force-dynamic';
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 1; // Revalidate every second
 
 export const metadata: Metadata = {
     title: 'Blog | Le Vo Quyet Thang',
