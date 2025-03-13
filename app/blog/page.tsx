@@ -4,6 +4,10 @@ import { supabase, BlogPost } from '../../utils/supabase';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
+// Add export const dynamic to force dynamic rendering and prevent caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
     title: 'Blog | Le Vo Quyet Thang',
     description: 'Thoughts, insights, and explorations in AI, machine learning, and computer vision.',
@@ -69,9 +73,6 @@ async function getBlogPosts() {
         return fallbackPosts;
     }
 }
-
-// Force revalidation on each request in development
-export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 3600;
 
 export default async function Blog() {
     const blogPosts = await getBlogPosts();
