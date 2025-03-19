@@ -71,6 +71,15 @@ const AboutSection = () => {
         ]
     };
 
+    const ieltsData = {
+        overall: '7.0',
+        listening: '8.0',
+        reading: '7.5',
+        writing: '6.0',
+        speaking: '5.5',
+        achievementDate: '15/03/2025'
+    };
+
     const skills = {
         'Programming': [
             { name: 'Python', color: 'neon-blue', icon: '🐍' },
@@ -227,7 +236,7 @@ const AboutSection = () => {
                     </motion.div>
 
                     {/* Education Section */}
-                    <motion.div variants={itemVariants} className="mb-16 w-full">
+                    <motion.div variants={itemVariants} className="mb-8 w-full">
                         <h3 className="text-2xl font-cyber mb-8 text-center">
                             <span className="text-gradient">EDUCATION</span>
                         </h3>
@@ -268,6 +277,62 @@ const AboutSection = () => {
                                             </li>
                                         ))}
                                     </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* IELTS Score Section */}
+                    <motion.div variants={itemVariants} className="mb-16 w-full">
+                        <div className="bg-cyber-black/50 backdrop-blur-sm border border-neon-pink/30 rounded-lg p-6 relative overflow-hidden w-full">
+                            {/* Decorative elements */}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-pink/0 via-neon-pink/50 to-neon-pink/0"></div>
+                            <div className="absolute -top-3 -right-3 w-24 h-24 opacity-10">
+                                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="50" cy="50" r="40" stroke="var(--neon-pink)" strokeWidth="0.5" strokeDasharray="5 5" />
+                                    <circle cx="50" cy="50" r="30" stroke="var(--neon-pink)" strokeWidth="0.5" />
+                                    <circle cx="50" cy="50" r="20" stroke="var(--neon-pink)" strokeWidth="0.5" strokeDasharray="2 2" />
+                                    <circle cx="50" cy="50" r="2" fill="var(--neon-pink)" />
+                                </svg>
+                            </div>
+
+                            <div className="flex flex-col md:flex-row gap-6 w-full">
+                                <div className="w-full md:w-1/3">
+                                    <div className="text-neon-pink font-cyber text-lg mb-1">IELTS Certification</div>
+                                    <div className="text-gray-400 text-sm mb-3">Achieved on {ieltsData.achievementDate}</div>
+                                    <div className="inline-block bg-neon-pink/20 px-3 py-1 rounded text-neon-pink text-sm font-mono mb-2">
+                                        Overall: {ieltsData.overall}
+                                    </div>
+                                </div>
+
+                                <div className="w-full md:w-2/3 md:border-l md:border-neon-pink/30 md:pl-6 mt-4 md:mt-0">
+                                    <div className="text-white font-cyber mb-3">SCORE BREAKDOWN</div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex flex-col space-y-2">
+                                            <div className="text-xs text-gray-400 uppercase">Listening</div>
+                                            <div className="inline-block bg-cyber-gray/30 px-3 py-2 rounded text-neon-blue text-sm font-mono">
+                                                {ieltsData.listening}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col space-y-2">
+                                            <div className="text-xs text-gray-400 uppercase">Reading</div>
+                                            <div className="inline-block bg-cyber-gray/30 px-3 py-2 rounded text-neon-blue text-sm font-mono">
+                                                {ieltsData.reading}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col space-y-2">
+                                            <div className="text-xs text-gray-400 uppercase">Writing</div>
+                                            <div className="inline-block bg-cyber-gray/30 px-3 py-2 rounded text-neon-pink text-sm font-mono">
+                                                {ieltsData.writing}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col space-y-2">
+                                            <div className="text-xs text-gray-400 uppercase">Speaking</div>
+                                            <div className="inline-block bg-cyber-gray/30 px-3 py-2 rounded text-neon-pink text-sm font-mono">
+                                                {ieltsData.speaking}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
