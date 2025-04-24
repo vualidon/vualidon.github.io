@@ -78,6 +78,17 @@ const ProjectsSection = () => {
             color: 'neon-pink',
             icon: '⚖️'
         },
+
+        {
+            name: 'Error Clustering',
+            description: 'Developed a system for clustering and visualizing errors on unstructured data from customer notes. ',
+            technologies: ['SentenceEmbeddings', 'DBSCAN', 'FAISS', 'UMAP', 'Gemini API'],
+            organization: 'FPT TELECOM',
+            date: 'Oct 2024 - Jan 2025',
+            color: 'cyber-yellow',
+            icon: '📊'
+        },
+
         {
             name: 'Company Chatbot',
             description: 'Developed a Multi-Agent Chatbot using Retrieval-augmented Generation (RAG) with advanced techniques like Query Expansion, Intent Classification, Multi-Agent Orchestration.',
