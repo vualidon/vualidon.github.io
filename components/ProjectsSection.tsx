@@ -47,6 +47,18 @@ const ProjectsSection = () => {
 
     // Project data
     const projects = [
+
+        {
+            name: 'Brr Data Pipeline',
+            description: 'Automated data pipeline for crawling and processing data from wiki pages, including data cleaning, transform to QA with Gemini 2.0 flash, and push to huggingface. Scheduled one a month with dagster.',
+            technologies: ['Dagster', 'Huggingface', 'LLM', 'Firecrawl', 'Supabase', 'Gemini'],
+            organization: 'Personal Project',
+            date: 'Apr 2025',
+            link: 'https://github.com/vualidon/llm_brr_project',
+            color: 'neon-green',
+            icon: '🛠️'
+        },
+
         {
             name: 'DailyDigestAI',
             description: 'LLM powered reading paper app for efficient research paper analysis. Features include paper chat functionality through LLM integration and automated generation of beautiful notes for Obsidian app.',
@@ -65,6 +77,15 @@ const ProjectsSection = () => {
             date: 'Jan 2024 - Aug 2024',
             color: 'neon-pink',
             icon: '⚖️'
+        },
+        {
+            name: 'Company Chatbot',
+            description: 'Developed a Multi-Agent Chatbot using Retrieval-augmented Generation (RAG) with advanced techniques like Query Expansion, Intent Classification, Multi-Agent Orchestration.',
+            technologies: ['Python', 'Elasticsearch', 'OpenAI API', 'Postgres', 'Langgraph', 'FastAPI'],
+            organization: 'FPT TELECOM',
+            date: 'Jan 2025 - April 2025',
+            color: 'neon-blue',
+            icon: '💬'
         },
         {
             name: 'University Chatbot',
@@ -94,7 +115,7 @@ const ProjectsSection = () => {
             icon: '📊'
         },
         {
-            name: 'ML System for Maintenance',
+            name: 'ML System for Maintenance and Telecom',
             description: 'Developed ML system for in-system maintenance including computer vision models for object detection, segmentation, and OCR at FPT TELECOM.',
             technologies: ['YOLO', 'PaddleOCR', 'Flask', 'Docker', 'MongoDB', 'ElasticSearch'],
             organization: 'FPT TELECOM',
