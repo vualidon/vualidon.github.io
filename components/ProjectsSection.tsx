@@ -49,6 +49,17 @@ const ProjectsSection = () => {
     const projects = [
 
         {
+            name: 'Explain Like I\'m 5 AI',
+            description: 'A web application that provides simplified explanations of complex topics using AI. Users can input any topic, and the app generates an easy-to-understand explanation, like a comic strip.',
+            technologies: ['Gemini', 'TypeScript'],
+            organization: 'Personal Project',
+            date: 'Apr 2025',
+            link: 'https://explain-like-im-5-ai.netlify.app/',
+            color: 'neon-purple',
+            icon: '🧠'
+        },
+
+        {
             name: 'Brr Data Pipeline',
             description: 'Automated data pipeline for crawling and processing data from wiki pages, including data cleaning, transform to QA with Gemini 2.0 flash, and push to huggingface. Scheduled one a month with dagster.',
             technologies: ['Dagster', 'Huggingface', 'LLM', 'Firecrawl', 'Supabase', 'Gemini'],
