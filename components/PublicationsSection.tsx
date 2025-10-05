@@ -34,7 +34,8 @@ const PublicationsSection = () => {
             conference: 'The 16th IEEE International Conference on Knowledge and Systems Engineering (KSE 2024)',
             award: 'Best Paper Award',
             year: '2024',
-            publisher: 'IEEE'
+            publisher: 'IEEE',
+            link: 'https://ieeexplore.ieee.org/document/11063523'
         },
         {
             title: 'A Framework for Vietnamese Question-Answering in Law Domain',
@@ -49,7 +50,8 @@ const PublicationsSection = () => {
             authors: 'Nguyen P. Nguyen, Thang V.Q. Le, Anh-Cuong Le, Viet-Ha Nguyen, Viet-Cuong Nguyen',
             conference: 'The 16th IEEE International Conference on Knowledge and Systems Engineering (KSE 2024)',
             year: '2024',
-            publisher: 'IEEE'
+            publisher: 'IEEE',
+            link: 'https://ieeexplore.ieee.org/document/11063566'
         }
     ];
 
