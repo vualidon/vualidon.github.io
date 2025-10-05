@@ -25,10 +25,38 @@ const AboutSection = () => {
 
     const experienceData = [
         {
+            title: 'Research Student',
+            company: 'JAIST',
+            location: 'Japan',
+            period: 'Oct 2025 - Present',
+            description: [
+                'Continue my research journey in the field of AI and LLM: enhance LLM reasoning ability and focus on small-scale models'
+            ],
+            skills: {
+                technical: 'Python, PyTorch, Git, Pandas, Databases',
+                soft: 'Teamwork, Time Management, Organizing'
+            }
+        },
+        {
+            title: 'AI Engineer',
+            company: 'Ringkas',
+            location: 'Ho Chi Minh City, Vietnam',
+            period: 'Jun 2025 - Sep 2025',
+            description: [
+                'Building Agentic AI for fintech industry: banking, mortgage, etc.',
+                'Agentic AI memory management: long-term memory for agents, context window management',
+                'Multi-agent system evaluation'
+            ],
+            skills: {
+                technical: 'Python, PyTorch, Git, Pandas, Databases',
+                soft: 'Teamwork, Time Management, Organizing'
+            }
+        },
+        {
             title: 'Data Analyst / AI Engineer',
             company: 'FPT Telecom',
             location: 'Ho Chi Minh City, Vietnam',
-            period: 'Jun 2023 - Present',
+            period: 'Jun 2023 - Jun 2025',
             description: [
                 'Collect, process, and analyze data to derive insights',
                 'Build models for image processing (Detection and OCR) in system maintenance',
