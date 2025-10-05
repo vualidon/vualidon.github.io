@@ -33,8 +33,8 @@ const AboutSection = () => {
                 'Continue my research journey in the field of AI and LLM: enhance LLM reasoning ability and focus on small-scale models'
             ],
             skills: {
-                technical: 'Python, PyTorch, Git, Pandas, Databases',
-                soft: 'Teamwork, Time Management, Organizing'
+                technical: 'Python, LLM, specific reasoning models',
+                soft: 'Teamwork, Time Management, Organizing, Research'
             }
         },
         {
@@ -48,7 +48,7 @@ const AboutSection = () => {
                 'Multi-agent system evaluation'
             ],
             skills: {
-                technical: 'Python, PyTorch, Git, Pandas, Databases',
+                technical: 'Python, Agentic AI, Multi-agent system, Evaluation LLM',
                 soft: 'Teamwork, Time Management, Organizing'
             }
         },
