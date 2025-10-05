@@ -63,7 +63,7 @@ const ContactSection = () => {
                                     <div>
                                         <h4 className="text-sm font-cyber mb-2 text-gray-400">LOCATION</h4>
                                         <p className="text-white flex items-center">
-                                            <span className="text-neon-pink mr-2">📍</span> Ho Chi Minh City, Vietnam
+                                            <span className="text-neon-pink mr-2">📍</span> Japan
                                         </p>
                                     </div>
 

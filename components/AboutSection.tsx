@@ -184,7 +184,7 @@ const AboutSection = () => {
                                 <div className="absolute -bottom-4 -right-4 bg-cyber-black p-3 rounded border border-neon-blue/50">
                                     <div className="text-neon-blue font-mono text-xs">
                                         <div>STATUS: ONLINE</div>
-                                        <div>LOCATION: VIETNAM</div>
+                                        <div>LOCATION: JAPAN</div>
                                     </div>
                                 </div>
                             </div>
