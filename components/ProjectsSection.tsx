@@ -141,7 +141,7 @@ const ProjectsSection = () => {
             description: 'Developed ML system for in-system maintenance including computer vision models for object detection, segmentation, and OCR at FPT TELECOM.',
             technologies: ['YOLO', 'PaddleOCR', 'Flask', 'Docker', 'MongoDB', 'ElasticSearch'],
             organization: 'FPT TELECOM',
-            date: 'Jun 2023 - Present',
+            date: 'Jun 2023 - Jun 2025',
             color: 'neon-blue',
             icon: '🔍'
         }
