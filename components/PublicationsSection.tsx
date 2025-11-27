@@ -52,6 +52,14 @@ const PublicationsSection = () => {
             year: '2024',
             publisher: 'IEEE',
             link: 'https://ieeexplore.ieee.org/document/11063566'
+        },
+        {
+            title: 'Overview of the LegalSLM Shared Task: Evaluating Legal Reasoning of Vietnamese Small Language Models',
+            authors: 'Anh-Cuong Le, Trong-Chi Duong, Viet-Ha Nguyen, Thang VQ Le',
+            conference: 'Proceedings of the 11th International Workshop on Vietnamese Language and Speech Processing (VLSP 2025)',
+            year: '2025',
+            publisher: 'Association for Computational Linguistics',
+            link: 'https://aclanthology.org/2025.vlsp-1.21/'
         }
     ];
 
