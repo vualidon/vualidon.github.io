@@ -432,7 +432,7 @@ const createBomb = () => {
     const bomb = new THREE.Group();
 
     // Central bomb core
-    const coreGeometry = new THREE.SphereGeometry(0.08, 12, 12);
+    const coreGeometry = new THREE.SphereGeometry(0.22, 12, 12);
     const coreMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color(0xff0000),
     });
@@ -440,21 +440,21 @@ const createBomb = () => {
     bomb.add(core);
 
     // Spikes
-    const spikeGeometry = new THREE.ConeGeometry(0.02, 0.08, 4);
+    const spikeGeometry = new THREE.ConeGeometry(0.06, 0.22, 4);
     const spikeMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 });
     for (let i = 0; i < 6; i++) {
         const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
-        if (i === 0) spike.position.y = 0.09;
-        if (i === 1) { spike.position.y = -0.09; spike.rotation.x = Math.PI; }
-        if (i === 2) { spike.position.x = 0.09; spike.rotation.z = -Math.PI / 2; }
-        if (i === 3) { spike.position.x = -0.09; spike.rotation.z = Math.PI / 2; }
-        if (i === 4) { spike.position.z = 0.09; spike.rotation.x = Math.PI / 2; }
-        if (i === 5) { spike.position.z = -0.09; spike.rotation.x = -Math.PI / 2; }
+        if (i === 0) spike.position.y = 0.25;
+        if (i === 1) { spike.position.y = -0.25; spike.rotation.x = Math.PI; }
+        if (i === 2) { spike.position.x = 0.25; spike.rotation.z = -Math.PI / 2; }
+        if (i === 3) { spike.position.x = -0.25; spike.rotation.z = Math.PI / 2; }
+        if (i === 4) { spike.position.z = 0.25; spike.rotation.x = Math.PI / 2; }
+        if (i === 5) { spike.position.z = -0.25; spike.rotation.x = -Math.PI / 2; }
         bomb.add(spike);
     }
 
     // Outer wireframe
-    const outerGeometry = new THREE.OctahedronGeometry(0.12);
+    const outerGeometry = new THREE.OctahedronGeometry(0.35);
     const outerMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color(0xff3300),
         wireframe: true
@@ -463,7 +463,7 @@ const createBomb = () => {
     bomb.add(outer);
 
     // Hitbox
-    const hitboxGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+    const hitboxGeometry = new THREE.SphereGeometry(0.5, 8, 8);
     const hitboxMaterial = new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0.0, // Completely invisible
@@ -475,7 +475,8 @@ const createBomb = () => {
 
     bomb.userData = {
         type: 'bomb',
-        color: new THREE.Color(0xff0000)
+        color: new THREE.Color(0xff0000),
+        coreRef: core
     };
 
     return bomb;
@@ -947,10 +948,14 @@ const HeroSection = () => {
         window.addEventListener('resize', handleResize);
 
         // Animation loop
+        let lastSpawnCheck = 0;
+        const SPAWN_INTERVAL = 1000; // Only check spawning once per second
+
         const animate = () => {
             if (!renderer || !scene || !camera) return;
 
             frameIdRef.current = requestAnimationFrame(animate);
+            const now = Date.now();
 
             particlesMesh.rotation.x += 0.0003;
             particlesMesh.rotation.y += 0.0003;
@@ -963,69 +968,60 @@ const HeroSection = () => {
             const isGameMode = gameStateRef.current.gameActive && !gameStateRef.current.gameOver;
             const speedMultiplier = isGameMode ? 1.5 : 1;
 
-            shipsRef.current.forEach(ship => {
-                // Move ship across screen
+            for (let i = shipsRef.current.length - 1; i >= 0; i--) {
+                const ship = shipsRef.current[i];
                 ship.position.x += ship.userData.speed * ship.userData.direction * speedMultiplier;
-
-                // Rotate ship
                 ship.rotation.z += ship.userData.rotationSpeed;
 
-                // Remove ship if it's off-screen
                 if ((ship.userData.direction > 0 && ship.position.x > 5) ||
                     (ship.userData.direction < 0 && ship.position.x < -5)) {
                     scene.remove(ship);
-                    shipsRef.current = shipsRef.current.filter(s => s !== ship);
+                    shipsRef.current.splice(i, 1);
                 }
-            });
+            }
 
             // Animate drones
-            dronesRef.current.forEach(drone => {
-                // Orbital movement
+            for (let i = dronesRef.current.length - 1; i >= 0; i--) {
+                const drone = dronesRef.current[i];
                 drone.userData.orbitAngle += drone.userData.orbitSpeed * speedMultiplier;
                 drone.position.x = drone.userData.basePosition.x +
                     Math.cos(drone.userData.orbitAngle) * drone.userData.orbitRadius;
                 drone.position.y = drone.userData.basePosition.y +
                     Math.sin(drone.userData.orbitAngle) * drone.userData.orbitRadius;
-
-                // Rotation
                 drone.rotation.x += drone.userData.rotationSpeed.x;
                 drone.rotation.y += drone.userData.rotationSpeed.y;
                 drone.rotation.z += drone.userData.rotationSpeed.z;
-            });
+            }
 
             // Animate bombs (game mode only)
-            bombsRef.current.forEach(bomb => {
-                // Horizontal movement
+            const bombPulse = 0.6 + Math.sin(now * 0.008) * 0.4;
+            for (let i = bombsRef.current.length - 1; i >= 0; i--) {
+                const bomb = bombsRef.current[i];
                 bomb.position.x += bomb.userData.speed * bomb.userData.direction;
+                bomb.position.y = bomb.userData.baseY + Math.sin(now * 0.003 + bomb.userData.offset) * 0.4;
 
-                // Sine-wave vertical drift
-                bomb.position.y = bomb.userData.baseY + Math.sin(Date.now() * 0.003 + bomb.userData.offset) * 0.4;
-
-                // Rotation
                 if (bomb.userData.rotationSpeed) {
                     bomb.rotation.x += bomb.userData.rotationSpeed.x;
                     bomb.rotation.y += bomb.userData.rotationSpeed.y;
                     bomb.rotation.z += bomb.userData.rotationSpeed.z;
                 }
 
-                // Pulsating red glow on the core
-                bomb.children.forEach(child => {
-                    if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry && child.geometry.parameters.radius === 0.08) {
-                        const pulse = 0.6 + Math.sin(Date.now() * 0.008) * 0.4;
-                        child.material.color.setRGB(pulse, 0, 0);
-                    }
-                });
+                // Pulsate core using cached ref
+                if (bomb.userData.coreRef) {
+                    bomb.userData.coreRef.material.color.setRGB(bombPulse, 0, 0);
+                }
 
-                // Remove if off-screen
                 if ((bomb.userData.direction > 0 && bomb.position.x > 6) ||
                     (bomb.userData.direction < 0 && bomb.position.x < -6)) {
                     scene.remove(bomb);
-                    bombsRef.current = bombsRef.current.filter(b => b !== bomb);
+                    bombsRef.current.splice(i, 1);
                 }
-            });
+            }
 
-            // Game mode: continuous respawn to maintain target counts
-            if (isGameMode) {
+            // Game mode: throttled respawn (once per second, not every frame)
+            if (isGameMode && now - lastSpawnCheck > SPAWN_INTERVAL) {
+                lastSpawnCheck = now;
+
                 if (shipsRef.current.length < 3) {
                     const ship = createSpaceship();
                     const side = Math.random() > 0.5 ? 1 : -1;
@@ -1072,7 +1068,6 @@ const HeroSection = () => {
             }
 
             // Animate explosions
-            const now = Date.now();
             explosionsRef.current.forEach(explosion => {
                 const age = now - explosion.userData.created;
                 const lifePercent = Math.min(age / explosion.userData.duration, 1);
@@ -1458,7 +1453,7 @@ const HeroSection = () => {
             {/* ===== GAME HUD (visible during active gameplay) ===== */}
             {gameActive && !gameOver && (
                 <motion.div
-                    className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-8 py-4"
+                    className="absolute top-20 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-8 py-4"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
