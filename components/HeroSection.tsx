@@ -427,6 +427,8 @@ const createDrone = () => {
     return drone;
 };
 
+const roles = ['AI ENGINEER', 'AI RESEARCHER'];
+
 const HeroSection = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const sceneRef = useRef<THREE.Scene | null>(null);
@@ -476,7 +478,6 @@ const HeroSection = () => {
     const [roleIndex, setRoleIndex] = useState(0);
     const [displayedText, setDisplayedText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
-    const roles = ['AI ENGINEER', 'AI RESEARCHER'];
 
     // Typing effect logic
     useEffect(() => {
@@ -508,7 +509,7 @@ const HeroSection = () => {
         }, typingSpeed);
 
         return () => clearTimeout(timeout);
-    }, [displayedText, isDeleting, roleIndex, roles]);
+    }, [displayedText, isDeleting, roleIndex]);
 
     // Smooth scroll function that doesn't add hash to URL
     const scrollToSection = (e: React.MouseEvent<HTMLButtonElement>, targetId: string) => {
