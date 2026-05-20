@@ -25,10 +25,23 @@ const AboutSection = () => {
 
     const experienceData = [
         {
+            title: 'Master Student',
+            company: 'JAIST',
+            location: 'Japan',
+            period: 'Apr 2026 - Present',
+            description: [
+                'Conducting graduate-level research, focusing on the problem of uncertainty quantification in LLM, hallucination detection and MoE.'
+            ],
+            skills: {
+                technical: 'Python, LLM, Deep Learning, NLP',
+                soft: 'Research, Academic Writing, Critical Thinking'
+            }
+        },
+        {
             title: 'Research Student',
             company: 'JAIST',
             location: 'Japan',
-            period: 'Oct 2025 - Present',
+            period: 'Oct 2025 - Apr 2026',
             description: [
                 'Continue my research journey in the field of AI and LLM: enhance LLM reasoning ability and focus on small-scale models'
             ],
