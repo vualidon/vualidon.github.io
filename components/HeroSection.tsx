@@ -427,6 +427,60 @@ const createDrone = () => {
     return drone;
 };
 
+// Cyberpunk bomb model
+const createBomb = () => {
+    const bomb = new THREE.Group();
+
+    // Central bomb core
+    const coreGeometry = new THREE.SphereGeometry(0.08, 12, 12);
+    const coreMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(0xff0000),
+    });
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    bomb.add(core);
+
+    // Spikes
+    const spikeGeometry = new THREE.ConeGeometry(0.02, 0.08, 4);
+    const spikeMaterial = new THREE.MeshBasicMaterial({ color: 0x555555 });
+    for (let i = 0; i < 6; i++) {
+        const spike = new THREE.Mesh(spikeGeometry, spikeMaterial);
+        if (i === 0) spike.position.y = 0.09;
+        if (i === 1) { spike.position.y = -0.09; spike.rotation.x = Math.PI; }
+        if (i === 2) { spike.position.x = 0.09; spike.rotation.z = -Math.PI / 2; }
+        if (i === 3) { spike.position.x = -0.09; spike.rotation.z = Math.PI / 2; }
+        if (i === 4) { spike.position.z = 0.09; spike.rotation.x = Math.PI / 2; }
+        if (i === 5) { spike.position.z = -0.09; spike.rotation.x = -Math.PI / 2; }
+        bomb.add(spike);
+    }
+
+    // Outer wireframe
+    const outerGeometry = new THREE.OctahedronGeometry(0.12);
+    const outerMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(0xff3300),
+        wireframe: true
+    });
+    const outer = new THREE.Mesh(outerGeometry, outerMaterial);
+    bomb.add(outer);
+
+    // Hitbox
+    const hitboxGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+    const hitboxMaterial = new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0.0, // Completely invisible
+        depthWrite: false // Don't affect depth buffer
+    });
+    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    hitbox.userData = { isHitbox: true };
+    bomb.add(hitbox);
+
+    bomb.userData = {
+        type: 'bomb',
+        color: new THREE.Color(0xff0000)
+    };
+
+    return bomb;
+};
+
 const roles = ['AI ENGINEER', 'AI RESEARCHER'];
 
 const HeroSection = () => {
@@ -437,6 +491,7 @@ const HeroSection = () => {
     const frameIdRef = useRef<number | null>(null);
     const shipsRef = useRef<THREE.Group[]>([]);
     const dronesRef = useRef<THREE.Group[]>([]);
+    const bombsRef = useRef<THREE.Group[]>([]);
     const explosionsRef = useRef<THREE.Group[]>([]);
     const raycasterRef = useRef<THREE.Raycaster>(new THREE.Raycaster());
     const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2());
@@ -678,125 +733,107 @@ const HeroSection = () => {
             }
         };
 
-        // Handle click events for interactive explosions
-        const handleClick = (event: MouseEvent) => {
-            // Calculate mouse position in normalized device coordinates (-1 to +1)
+        // Unified interaction handler for both mouse clicks and touch events
+        const handleInteraction = (clientX: number, clientY: number) => {
+            if (gameStateRef.current.gameOver) return;
+
+            // Calculate mouse/touch position in normalized device coordinates (-1 to +1)
             const rect = canvasRef.current!.getBoundingClientRect();
-            mouseRef.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            mouseRef.current.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            mouseRef.current.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
             // Update the raycaster
             raycasterRef.current.setFromCamera(mouseRef.current, camera);
 
-            // Check for intersections with ships
-            const shipIntersects = raycasterRef.current.intersectObjects(
-                shipsRef.current.flatMap(ship => ship.children)
-            );
+            // Objects to intersect
+            const targetsToIntersect = [
+                ...shipsRef.current.flatMap(ship => ship.children),
+                ...dronesRef.current.flatMap(drone => drone.children),
+                ...bombsRef.current.flatMap(bomb => bomb.children)
+            ];
 
-            if (shipIntersects.length > 0) {
-                // Find the parent ship
-                const hitObject = shipIntersects[0].object;
-                const ship = hitObject.parent;
+            const intersects = raycasterRef.current.intersectObjects(targetsToIntersect);
 
-                if (ship) {
-                    // Create explosion at ship position
-                    const explosion = createExplosion(
-                        ship.position.clone(),
-                        ship.userData.color || new THREE.Color(0x00f0ff)
-                    );
-                    scene.add(explosion);
-                    explosionsRef.current.push(explosion);
+            if (intersects.length > 0) {
+                const hitObject = intersects[0].object;
+                const target = hitObject.parent;
 
-                    // Remove the ship
-                    scene.remove(ship);
-                    shipsRef.current = shipsRef.current.filter(s => s !== ship);
+                if (target && target.userData && target.userData.type) {
+                    const type = target.userData.type;
 
-                    // Play explosion sound (if available)
-                    // Add haptic feedback for mobile
-                    if (window.navigator && window.navigator.vibrate) {
-                        window.navigator.vibrate(100);
-                    }
-                }
-            }
+                    if (type === 'spaceship' || type === 'drone') {
+                        if (!gameStateRef.current.gameActive) {
+                            setGameActive(true);
+                            setScore(1);
+                            setHearts(3);
+                            setGameOver(false);
+                        } else {
+                            setScore(prev => prev + 1);
+                        }
 
-            // Check for intersections with drones
-            const droneIntersects = raycasterRef.current.intersectObjects(
-                dronesRef.current.flatMap(drone => drone.children)
-            );
+                        // Create explosion at position
+                        const explosion = createExplosion(
+                            target.position.clone(),
+                            target.userData.color || new THREE.Color(0x00f0ff)
+                        );
+                        scene.add(explosion);
+                        explosionsRef.current.push(explosion);
 
-            if (droneIntersects.length > 0) {
-                // Find the parent drone
-                const hitObject = droneIntersects[0].object;
-                const drone = hitObject.parent;
+                        // Remove from scene and ref
+                        scene.remove(target);
+                        if (type === 'spaceship') {
+                            shipsRef.current = shipsRef.current.filter(s => s !== target);
+                        } else {
+                            dronesRef.current = dronesRef.current.filter(d => d !== target);
+                        }
 
-                if (drone) {
-                    // Create explosion at drone position
-                    const explosion = createExplosion(
-                        drone.position.clone(),
-                        drone.userData.color || new THREE.Color(0xff00ff)
-                    );
-                    scene.add(explosion);
-                    explosionsRef.current.push(explosion);
+                        // Haptic feedback
+                        if (window.navigator && window.navigator.vibrate) {
+                            window.navigator.vibrate(100);
+                        }
+                    } else if (type === 'bomb') {
+                        if (gameStateRef.current.gameActive) {
+                            // Create red explosion at position
+                            const explosion = createExplosion(
+                                target.position.clone(),
+                                target.userData.color || new THREE.Color(0xff0000)
+                            );
+                            scene.add(explosion);
+                            explosionsRef.current.push(explosion);
 
-                    // Remove the drone
-                    scene.remove(drone);
-                    dronesRef.current = dronesRef.current.filter(d => d !== drone);
+                            // Remove from scene and ref
+                            scene.remove(target);
+                            bombsRef.current = bombsRef.current.filter(b => b !== target);
 
-                    // Play explosion sound (if available)
-                    // Add haptic feedback for mobile
-                    if (window.navigator && window.navigator.vibrate) {
-                        window.navigator.vibrate(100);
+                            // Deduct heart
+                            setHearts(h => {
+                                const nextHearts = Math.max(0, h - 1);
+                                if (nextHearts === 0) {
+                                    setGameOver(true);
+                                }
+                                return nextHearts;
+                            });
+
+                            // Haptic feedback
+                            if (window.navigator && window.navigator.vibrate) {
+                                window.navigator.vibrate(200);
+                            }
+                        }
                     }
                 }
             }
         };
 
+        // Handle click events for interactive explosions
+        const handleClick = (event: MouseEvent) => {
+            handleInteraction(event.clientX, event.clientY);
+        };
+
         // Handle touch events for mobile
         const handleTouch = (event: TouchEvent) => {
             if (event.touches.length === 0 && event.changedTouches.length > 0) {
-                // Use the first touch point
                 const touch = event.changedTouches[0];
-                const rect = canvasRef.current!.getBoundingClientRect();
-                mouseRef.current.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-                mouseRef.current.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-
-                // Update the raycaster
-                raycasterRef.current.setFromCamera(mouseRef.current, camera);
-
-                // Check for intersections with ships
-                const shipIntersects = raycasterRef.current.intersectObjects(
-                    shipsRef.current.flatMap(ship => ship.children)
-                );
-
-                // Process intersections the same way as in handleClick
-                if (shipIntersects.length > 0) {
-                    const intersectedObject = shipIntersects[0].object;
-                    const ship = intersectedObject.parent;
-
-                    if (ship && !ship.userData.exploding) {
-                        // Create explosion at ship position
-                        const explosion = createExplosion(ship.position.clone(), new THREE.Color(0x00ffff));
-                        scene.add(explosion);
-                        explosionsRef.current.push(explosion);
-
-                        // Mark ship as exploding and remove it
-                        ship.userData.exploding = true;
-                        ship.visible = false;
-
-                        // Schedule ship respawn
-                        setTimeout(() => {
-                            if (ship.parent) {
-                                ship.position.set(
-                                    (Math.random() - 0.5) * 10,
-                                    (Math.random() - 0.5) * 5 + 2,
-                                    (Math.random() - 0.5) * 5 - 5
-                                );
-                                ship.userData.exploding = false;
-                                ship.visible = true;
-                            }
-                        }, 3000);
-                    }
-                }
+                handleInteraction(touch.clientX, touch.clientY);
             }
         };
 
