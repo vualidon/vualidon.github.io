@@ -440,6 +440,38 @@ const HeroSection = () => {
     const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2());
     const [isInitialized, setIsInitialized] = useState(false);
 
+    // Game state variables
+    const [gameActive, setGameActive] = useState(false);
+    const [score, setScore] = useState(0);
+    const [hearts, setHearts] = useState(3);
+    const [gameOver, setGameOver] = useState(false);
+    const [highScore, setHighScore] = useState(0);
+
+    const gameStateRef = useRef({
+        gameActive: false,
+        score: 0,
+        hearts: 3,
+        gameOver: false,
+        highScore: 0
+    });
+
+    useEffect(() => {
+        gameStateRef.current = {
+            gameActive,
+            score,
+            hearts,
+            gameOver,
+            highScore
+        };
+    }, [gameActive, score, hearts, gameOver, highScore]);
+
+    useEffect(() => {
+        const savedHighScore = localStorage.getItem('cyber_arcade_highscore');
+        if (savedHighScore) {
+            setHighScore(parseInt(savedHighScore, 10) || 0);
+        }
+    }, []);
+
     // State for the typing effect
     const [roleIndex, setRoleIndex] = useState(0);
     const [displayedText, setDisplayedText] = useState('');
