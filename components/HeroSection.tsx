@@ -529,6 +529,37 @@ const HeroSection = () => {
         }
     }, []);
 
+    // Save high score and handle game over
+    useEffect(() => {
+        if (gameOver && score > highScore) {
+            setHighScore(score);
+            localStorage.setItem('cyber_arcade_highscore', score.toString());
+        }
+    }, [gameOver, score, highScore]);
+
+    // Reset game function
+    const resetGame = () => {
+        setScore(0);
+        setHearts(3);
+        setGameOver(false);
+        setGameActive(true);
+    };
+
+    // Quit game function
+    const quitGame = () => {
+        setScore(0);
+        setHearts(3);
+        setGameOver(false);
+        setGameActive(false);
+        // Remove all bombs from scene
+        if (sceneRef.current) {
+            bombsRef.current.forEach(bomb => {
+                sceneRef.current!.remove(bomb);
+            });
+            bombsRef.current = [];
+        }
+    };
+
     // State for the typing effect
     const [roleIndex, setRoleIndex] = useState(0);
     const [displayedText, setDisplayedText] = useState('');
@@ -733,6 +764,47 @@ const HeroSection = () => {
             }
         };
 
+        // Create random bombs for game mode
+        const createRandomBombs = () => {
+            // Only spawn if in game mode
+            if (!gameStateRef.current.gameActive || gameStateRef.current.gameOver) return;
+
+            const maxBombs = 2;
+            const currentBombs = bombsRef.current.length;
+            const bombsToCreate = maxBombs - currentBombs;
+
+            for (let i = 0; i < bombsToCreate; i++) {
+                const bomb = createBomb();
+
+                // Random position off-screen
+                const side = Math.random() > 0.5 ? 1 : -1;
+                bomb.position.x = side * (Math.random() * 2 + 5);
+                bomb.position.y = (Math.random() - 0.5) * 3;
+                bomb.position.z = (Math.random() - 0.5) * 2;
+
+                // Random scale
+                const scale = Math.random() * 0.4 + 0.4;
+                bomb.scale.set(scale, scale, scale);
+
+                // Movement data
+                bomb.userData = {
+                    ...bomb.userData,
+                    speed: Math.random() * 0.02 + 0.015,
+                    direction: -side,
+                    baseY: bomb.position.y,
+                    offset: Math.random() * Math.PI * 2,
+                    rotationSpeed: {
+                        x: (Math.random() - 0.5) * 0.03,
+                        y: (Math.random() - 0.5) * 0.03,
+                        z: (Math.random() - 0.5) * 0.03
+                    }
+                };
+
+                scene.add(bomb);
+                bombsRef.current.push(bomb);
+            }
+        };
+
         // Unified interaction handler for both mouse clicks and touch events
         const handleInteraction = (clientX: number, clientY: number) => {
             if (gameStateRef.current.gameOver) return;
@@ -888,9 +960,12 @@ const HeroSection = () => {
             particlesMesh.rotation.y += mouseX * 0.0003;
 
             // Animate spaceships
+            const isGameMode = gameStateRef.current.gameActive && !gameStateRef.current.gameOver;
+            const speedMultiplier = isGameMode ? 1.5 : 1;
+
             shipsRef.current.forEach(ship => {
                 // Move ship across screen
-                ship.position.x += ship.userData.speed * ship.userData.direction;
+                ship.position.x += ship.userData.speed * ship.userData.direction * speedMultiplier;
 
                 // Rotate ship
                 ship.rotation.z += ship.userData.rotationSpeed;
@@ -906,7 +981,7 @@ const HeroSection = () => {
             // Animate drones
             dronesRef.current.forEach(drone => {
                 // Orbital movement
-                drone.userData.orbitAngle += drone.userData.orbitSpeed;
+                drone.userData.orbitAngle += drone.userData.orbitSpeed * speedMultiplier;
                 drone.position.x = drone.userData.basePosition.x +
                     Math.cos(drone.userData.orbitAngle) * drone.userData.orbitRadius;
                 drone.position.y = drone.userData.basePosition.y +
@@ -917,6 +992,84 @@ const HeroSection = () => {
                 drone.rotation.y += drone.userData.rotationSpeed.y;
                 drone.rotation.z += drone.userData.rotationSpeed.z;
             });
+
+            // Animate bombs (game mode only)
+            bombsRef.current.forEach(bomb => {
+                // Horizontal movement
+                bomb.position.x += bomb.userData.speed * bomb.userData.direction;
+
+                // Sine-wave vertical drift
+                bomb.position.y = bomb.userData.baseY + Math.sin(Date.now() * 0.003 + bomb.userData.offset) * 0.4;
+
+                // Rotation
+                if (bomb.userData.rotationSpeed) {
+                    bomb.rotation.x += bomb.userData.rotationSpeed.x;
+                    bomb.rotation.y += bomb.userData.rotationSpeed.y;
+                    bomb.rotation.z += bomb.userData.rotationSpeed.z;
+                }
+
+                // Pulsating red glow on the core
+                bomb.children.forEach(child => {
+                    if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry && child.geometry.parameters.radius === 0.08) {
+                        const pulse = 0.6 + Math.sin(Date.now() * 0.008) * 0.4;
+                        child.material.color.setRGB(pulse, 0, 0);
+                    }
+                });
+
+                // Remove if off-screen
+                if ((bomb.userData.direction > 0 && bomb.position.x > 6) ||
+                    (bomb.userData.direction < 0 && bomb.position.x < -6)) {
+                    scene.remove(bomb);
+                    bombsRef.current = bombsRef.current.filter(b => b !== bomb);
+                }
+            });
+
+            // Game mode: continuous respawn to maintain target counts
+            if (isGameMode) {
+                if (shipsRef.current.length < 3) {
+                    const ship = createSpaceship();
+                    const side = Math.random() > 0.5 ? 1 : -1;
+                    ship.position.x = side * (Math.random() * 2 + 5);
+                    ship.position.y = (Math.random() - 0.5) * 3;
+                    ship.position.z = (Math.random() - 0.5) * 2;
+                    ship.rotation.z = Math.random() * Math.PI * 2;
+                    const scale = Math.random() * 0.5 + 0.5;
+                    ship.scale.set(scale, scale, scale);
+                    ship.userData = {
+                        ...ship.userData,
+                        speed: Math.random() * 0.03 + 0.01,
+                        direction: -side,
+                        rotationSpeed: (Math.random() - 0.5) * 0.01
+                    };
+                    scene.add(ship);
+                    shipsRef.current.push(ship);
+                }
+
+                if (dronesRef.current.length < 2) {
+                    const drone = createDrone();
+                    drone.position.x = (Math.random() - 0.5) * 8;
+                    drone.position.y = (Math.random() - 0.5) * 4;
+                    drone.position.z = (Math.random() - 0.5) * 2;
+                    const scale = Math.random() * 0.3 + 0.2;
+                    drone.scale.set(scale, scale, scale);
+                    drone.userData = {
+                        ...drone.userData,
+                        orbitRadius: Math.random() * 0.5 + 0.2,
+                        orbitSpeed: Math.random() * 0.01 + 0.005,
+                        orbitAngle: Math.random() * Math.PI * 2,
+                        basePosition: new THREE.Vector3(drone.position.x, drone.position.y, drone.position.z),
+                        rotationSpeed: {
+                            x: (Math.random() - 0.5) * 0.02,
+                            y: (Math.random() - 0.5) * 0.02,
+                            z: (Math.random() - 0.5) * 0.02
+                        }
+                    };
+                    scene.add(drone);
+                    dronesRef.current.push(drone);
+                }
+
+                createRandomBombs();
+            }
 
             // Animate explosions
             const now = Date.now();
@@ -1217,6 +1370,54 @@ const HeroSection = () => {
             particlesGeometry.dispose();
             particlesMaterial.dispose();
 
+            // Dispose all bombs
+            bombsRef.current.forEach(bomb => {
+                bomb.children.forEach(child => {
+                    if (child instanceof THREE.Mesh) {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(mat => mat.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Dispose all ships
+            shipsRef.current.forEach(ship => {
+                ship.children.forEach(child => {
+                    if (child instanceof THREE.Mesh) {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(mat => mat.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Dispose all drones
+            dronesRef.current.forEach(drone => {
+                drone.children.forEach(child => {
+                    if (child instanceof THREE.Mesh) {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(mat => mat.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    }
+                });
+            });
+
             // Dispose all explosions
             explosionsRef.current.forEach(explosion => {
                 explosion.children.forEach(child => {
@@ -1254,110 +1455,234 @@ const HeroSection = () => {
                 title="Click on spaceships or drones to destroy them!"
             />
 
-            <div className="relative z-10 text-center w-full max-w-4xl mx-auto flex items-center justify-center min-h-[80vh]">
+            {/* ===== GAME HUD (visible during active gameplay) ===== */}
+            {gameActive && !gameOver && (
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-8 py-4"
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="w-full"
+                    transition={{ duration: 0.4 }}
                 >
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-cyber font-bold mb-4 md:mb-6">
-                        <span className="block mb-2">LE VO QUYET THANG</span>
-                        <div className="flex items-center justify-center gap-3">
-                            <span className="text-neon-blue">🧠</span>
-                            <span className="text-gradient h-[1.5em] inline-flex items-center">
-                                {displayedText}
-                                <span className="ml-1 h-[1.2em] w-[2px] bg-neon-pink animate-blink"></span>
-                            </span>
-                            <span className="text-neon-pink">⚡</span>
+                    {/* Score */}
+                    <div className="bg-black/60 backdrop-blur-md border border-neon-blue/50 rounded-lg px-4 py-2 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+                        <span className="font-cyber text-xs text-neon-blue/70 tracking-widest">SCORE</span>
+                        <div className="font-cyber text-2xl sm:text-3xl text-neon-blue tabular-nums" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            {String(score).padStart(3, '0')}
                         </div>
-                    </h1>
+                    </div>
 
-                    <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-gray-300 max-w-3xl mx-auto px-2">
-                        Welcome to my portfolio! I'm Le Vo Quyet Thang, an AI Engineer and Researcher with expertise in NLP.
-                    </p>
+                    {/* Quit Button */}
+                    <motion.button
+                        onClick={quitGame}
+                        className="bg-black/60 backdrop-blur-md border border-gray-500/50 rounded-lg px-4 py-2 font-cyber text-xs sm:text-sm text-gray-400 tracking-widest hover:text-white hover:border-neon-pink/50 transition-all duration-300"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        [ QUIT ]
+                    </motion.button>
 
-                    <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-                        <motion.button
-                            onClick={(e) => scrollToSection(e as any, 'projects')}
-                            className="px-6 sm:px-8 py-3 bg-transparent border-2 border-neon-blue text-neon-blue font-cyber rounded-md hover:bg-neon-blue/20 transition-colors duration-300 text-sm sm:text-base"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            EXPLORE PROJECTS
-                        </motion.button>
-
-                        <motion.button
-                            onClick={(e) => scrollToSection(e as any, 'contact')}
-                            className="px-6 sm:px-8 py-3 bg-neon-pink text-black font-cyber rounded-md hover:bg-neon-pink/90 transition-colors duration-300 text-sm sm:text-base"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            CONNECT
-                        </motion.button>
+                    {/* Hearts */}
+                    <div className="bg-black/60 backdrop-blur-md border border-neon-pink/50 rounded-lg px-4 py-2 shadow-[0_0_15px_rgba(255,0,255,0.2)]">
+                        <span className="font-cyber text-xs text-neon-pink/70 tracking-widest">HEALTH</span>
+                        <div className="flex gap-2 mt-1">
+                            {[0, 1, 2].map(i => (
+                                <motion.span
+                                    key={i}
+                                    className={`text-xl sm:text-2xl transition-all duration-300 ${i < hearts ? '' : 'grayscale opacity-30'}`}
+                                    animate={i < hearts ? { scale: [1, 1.2, 1] } : { scale: 0.8 }}
+                                    transition={i < hearts ? { duration: 0.8, repeat: Infinity, repeatDelay: 1 } : { duration: 0.3 }}
+                                >
+                                    ❤️
+                                </motion.span>
+                            ))}
+                        </div>
                     </div>
                 </motion.div>
+            )}
 
-                {/* Interactive hint that appears and then disappears */}
+            {/* ===== GAME OVER OVERLAY ===== */}
+            {gameOver && (
                 <motion.div
-                    className="absolute top-[calc(50%-200px)] left-1/2 transform -translate-x-1/2 text-sm md:text-base text-center z-10"
+                    className="absolute inset-0 z-40 flex items-center justify-center bg-black/75 backdrop-blur-lg"
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 1, 1, 0] }}
-                    transition={{
-                        times: [0, 0.1, 0.8, 1],
-                        duration: 5,
-                        delay: 2,
-                        ease: "easeInOut"
-                    }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6 }}
                 >
                     <motion.div
-                        className="inline-block bg-black/50 backdrop-blur-sm px-4 py-2 rounded-md border border-neon-blue/50"
-                        animate={{
-                            boxShadow: ['0 0 0px rgba(0, 240, 255, 0.3)', '0 0 10px rgba(0, 240, 255, 0.7)', '0 0 0px rgba(0, 240, 255, 0.3)'],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: 3,
-                            repeatType: "reverse"
-                        }}
+                        className="text-center p-8 sm:p-12 rounded-2xl border border-red-500/30 bg-black/60 backdrop-blur-xl shadow-[0_0_60px_rgba(255,0,0,0.15)] max-w-md w-full mx-4"
+                        initial={{ scale: 0.8, y: 30 }}
+                        animate={{ scale: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        <span className="hidden sm:inline text-neon-blue font-cyber tracking-wider">
-                            <span className="text-white opacity-80">[ </span>
-                            Click on ships and drones to destroy them!
-                            <span className="text-white opacity-80"> ]</span>
-                        </span>
-                        <span className="sm:hidden text-neon-blue font-cyber tracking-wider">
-                            <span className="text-white opacity-80">[ </span>
-                            Tap ships and drones!
-                            <span className="text-white opacity-80"> ]</span>
-                        </span>
+                        {/* Game Over Title */}
+                        <motion.div
+                            className="mb-6"
+                            animate={{ opacity: [0.7, 1, 0.7] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                            <div className="font-cyber text-sm sm:text-base tracking-[0.3em] text-red-400/80 mb-1">
+                                SYSTEM CRITICAL
+                            </div>
+                            <h2 className="font-cyber text-3xl sm:text-4xl md:text-5xl font-bold text-red-500" style={{ textShadow: '0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 0, 0, 0.3)' }}>
+                                GAME OVER
+                            </h2>
+                        </motion.div>
+
+                        {/* Divider */}
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent mb-6" />
+
+                        {/* Score Display */}
+                        <div className="mb-4">
+                            <div className="font-cyber text-xs tracking-widest text-neon-blue/70 mb-1">FINAL SCORE</div>
+                            <div className="font-cyber text-4xl sm:text-5xl text-neon-blue" style={{ textShadow: '0 0 15px rgba(0, 240, 255, 0.5)' }}>
+                                {String(score).padStart(3, '0')}
+                            </div>
+                        </div>
+
+                        {/* High Score */}
+                        <div className="mb-6">
+                            <div className="font-cyber text-xs tracking-widest text-neon-pink/70 mb-1">HIGH SCORE</div>
+                            <div className="font-cyber text-2xl sm:text-3xl text-neon-pink" style={{ textShadow: '0 0 15px rgba(255, 0, 255, 0.5)' }}>
+                                {String(highScore).padStart(3, '0')}
+                            </div>
+                            {score >= highScore && score > 0 && (
+                                <motion.div
+                                    className="mt-2 inline-block bg-neon-pink/20 border border-neon-pink/50 rounded-full px-4 py-1"
+                                    animate={{ opacity: [0.5, 1, 0.5], scale: [0.95, 1.05, 0.95] }}
+                                    transition={{ duration: 1.2, repeat: Infinity }}
+                                >
+                                    <span className="font-cyber text-xs tracking-widest text-neon-pink">
+                                        ★ NEW RECORD ★
+                                    </span>
+                                </motion.div>
+                            )}
+                        </div>
+
+                        {/* Divider */}
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-neon-blue/30 to-transparent mb-6" />
+
+                        {/* Replay Button */}
+                        <motion.button
+                            onClick={resetGame}
+                            className="font-cyber text-sm sm:text-base tracking-[0.2em] px-8 py-3 bg-transparent border-2 border-neon-blue text-neon-blue rounded-lg hover:bg-neon-blue/20 transition-all duration-300 shadow-[0_0_15px_rgba(0,240,255,0.2)] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)]"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            [ REDEPLOY ]
+                        </motion.button>
                     </motion.div>
                 </motion.div>
-            </div>
+            )}
 
-            {/* Scroll down arrow with fixed positioning */}
-            <motion.div
-                className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, y: [0, 10, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
-            >
-                <button
-                    onClick={(e) => scrollToSection(e as any, 'about')}
-                    className="flex items-center justify-center p-2 rounded-full bg-cyber-black/50 backdrop-blur-sm border border-neon-blue/30 hover:bg-cyber-gray/50 transition-colors duration-300 cursor-pointer"
-                    aria-label="Scroll to About section"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-neon-blue"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+            {/* ===== HERO CONTENT (hidden during game) ===== */}
+            {!gameActive && (
+                <div className="relative z-10 text-center w-full max-w-4xl mx-auto flex items-center justify-center min-h-[80vh]">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="w-full"
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </button>
-            </motion.div>
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-cyber font-bold mb-4 md:mb-6">
+                            <span className="block mb-2">LE VO QUYET THANG</span>
+                            <div className="flex items-center justify-center gap-3">
+                                <span className="text-neon-blue">🧠</span>
+                                <span className="text-gradient h-[1.5em] inline-flex items-center">
+                                    {displayedText}
+                                    <span className="ml-1 h-[1.2em] w-[2px] bg-neon-pink animate-blink"></span>
+                                </span>
+                                <span className="text-neon-pink">⚡</span>
+                            </div>
+                        </h1>
+
+                        <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-gray-300 max-w-3xl mx-auto px-2">
+                            Welcome to my portfolio! I'm Le Vo Quyet Thang, an AI Engineer and Researcher with expertise in NLP.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                            <motion.button
+                                onClick={(e) => scrollToSection(e as any, 'projects')}
+                                className="px-6 sm:px-8 py-3 bg-transparent border-2 border-neon-blue text-neon-blue font-cyber rounded-md hover:bg-neon-blue/20 transition-colors duration-300 text-sm sm:text-base"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                EXPLORE PROJECTS
+                            </motion.button>
+
+                            <motion.button
+                                onClick={(e) => scrollToSection(e as any, 'contact')}
+                                className="px-6 sm:px-8 py-3 bg-neon-pink text-black font-cyber rounded-md hover:bg-neon-pink/90 transition-colors duration-300 text-sm sm:text-base"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                CONNECT
+                            </motion.button>
+                        </div>
+                    </motion.div>
+
+                    {/* Interactive hint that appears and then disappears */}
+                    <motion.div
+                        className="absolute top-[calc(50%-200px)] left-1/2 transform -translate-x-1/2 text-sm md:text-base text-center z-10"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0, 1, 1, 0] }}
+                        transition={{
+                            times: [0, 0.1, 0.8, 1],
+                            duration: 5,
+                            delay: 2,
+                            ease: "easeInOut"
+                        }}
+                    >
+                        <motion.div
+                            className="inline-block bg-black/50 backdrop-blur-sm px-4 py-2 rounded-md border border-neon-blue/50"
+                            animate={{
+                                boxShadow: ['0 0 0px rgba(0, 240, 255, 0.3)', '0 0 10px rgba(0, 240, 255, 0.7)', '0 0 0px rgba(0, 240, 255, 0.3)'],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: 3,
+                                repeatType: "reverse"
+                            }}
+                        >
+                            <span className="hidden sm:inline text-neon-blue font-cyber tracking-wider">
+                                <span className="text-white opacity-80">[ </span>
+                                Click on ships and drones to destroy them!
+                                <span className="text-white opacity-80"> ]</span>
+                            </span>
+                            <span className="sm:hidden text-neon-blue font-cyber tracking-wider">
+                                <span className="text-white opacity-80">[ </span>
+                                Tap ships and drones!
+                                <span className="text-white opacity-80"> ]</span>
+                            </span>
+                        </motion.div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Scroll down arrow with fixed positioning (hidden during game) */}
+            {!gameActive && (
+                <motion.div
+                    className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, y: [0, 10, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
+                >
+                    <button
+                        onClick={(e) => scrollToSection(e as any, 'about')}
+                        className="flex items-center justify-center p-2 rounded-full bg-cyber-black/50 backdrop-blur-sm border border-neon-blue/30 hover:bg-cyber-gray/50 transition-colors duration-300 cursor-pointer"
+                        aria-label="Scroll to About section"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-neon-blue"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </button>
+                </motion.div>
+            )}
         </section>
     );
 };
