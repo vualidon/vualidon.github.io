@@ -24,6 +24,11 @@ const ContactSection = () => {
 
     const socialLinks = [
         {
+            name: 'Google Scholar',
+            icon: 'google-scholar',
+            url: 'https://scholar.google.com/citations?user=7nX7348AAAAJ',
+        },
+        {
             name: 'GitHub',
             icon: 'github',
             url: 'https://github.com/vualidon',
