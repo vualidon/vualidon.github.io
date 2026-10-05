@@ -60,12 +60,28 @@ const PublicationsSection = () => {
             year: '2025',
             publisher: 'Association for Computational Linguistics',
             link: 'https://aclanthology.org/2025.vlsp-1.21/'
-        }
+        },
+        {
+            title: 'VietLegalLM: Progressive Legal Expertise Through Synthetic Comprehension and Reinforcement Learning',
+            authors: 'Thang Le, Anh-Cuong Le, Viet-Ha Nguyen, Chi Duong, Quan Nguyen, Nguyen Nguyen',
+            conference: 'ACM Transactions on Asian and Low-Resource Language Information Processing',
+            year: '2026',
+            publisher: 'ACM',
+            link: 'https://doi.org/10.1145/3829212'
+        },
+        {
+            title: 'Internal Representation Inspection for LLM Self-calibration via Multi-source Evidence Fusion',
+            authors: 'Thang V. Q. Le, Ngoc-Phat Hung, Satoshi Okuda, Anh-Cuong Le, Van-Nam Huynh',
+            conference: 'The 12th International Symposium on Integrated Uncertainty in Knowledge Modelling and Decision Making (IUKM 2026)',
+            year: '2026',
+            publisher: 'Springer — Lecture Notes in Artificial Intelligence (LNAI), Vol. 16919',
+            link: 'https://doi.org/10.1007/978-981-92-5644-0_28'
+        },
     ];
 
     // Highlight the author name in the authors list
     const highlightAuthor = (authors: string) => {
-        return authors.replace(/Thang V\.Q\. Le|Thang V\. Q\. Le/g, '<span class="text-neon-blue font-bold">Thang V.Q. Le</span>');
+        return authors.replace(/Thang V\.?\s*Q\.?\s*Le|Thang VQ Le|Thang Le/g, '<span class="text-neon-blue font-bold">Thang V.Q. Le</span>');
     };
 
     return (
@@ -95,7 +111,9 @@ const PublicationsSection = () => {
                     </motion.div>
 
                     <div className="space-y-6">
-                        {publications.map((publication, index) => (
+                        {[...publications]
+                            .sort((a, b) => Number(b.year) - Number(a.year))
+                            .map((publication, index) => (
                             <motion.div
                                 key={index}
                                 variants={itemVariants}
